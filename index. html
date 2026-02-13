@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+               <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,16 +21,20 @@
             const [searchTerm, setSearchTerm] = useState('');
             const [loading, setLoading] = useState(true);
 
-            // TMDB API Key (Demo purpose ke liye public use kar raha hoon)
-            const API_URL = "https://api.themoviedb.org/3/movie/popular?api_key=ace1a7739505f037593c8d197945d7d9";
-            const SEARCH_URL = "https://api.themoviedb.org/3/search/movie?api_key=ace1a7739505f037593c8d197945d7d9&query=";
+            const API_KEY = "ace1a7739505f037593c8d197945d7d9";
+            const API_URL = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`;
+            const SEARCH_URL = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=`;
             const IMG_PATH = "https://image.tmdb.org/t/p/w500";
 
             const fetchMovies = async (url) => {
                 setLoading(true);
-                const res = await fetch(url);
-                const data = await res.json();
-                setMovies(data.results);
+                try {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    setMovies(data.results || []);
+                } catch (err) {
+                    console.error("Error fetching movies:", err);
+                }
                 setLoading(false);
             };
 
@@ -40,48 +44,51 @@
 
             const handleSearch = (e) => {
                 e.preventDefault();
-                if (searchTerm) {
-                    fetchMovies(SEARCH_URL + searchTerm);
-                } else {
-                    fetchMovies(API_URL);
-                }
+                if (searchTerm) fetchMovies(SEARCH_URL + searchTerm);
+                else fetchMovies(API_URL);
             };
 
             return (
-                <div class="min-h-screen">
-                    {/* Header/Search */}
-                    <header class="p-6 bg-gray-900 sticky top-0 z-50 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-800">
-                        <h1 class="text-3xl font-black text-red-600 tracking-tighter italic">CINE<span class="text-white">WAVE</span></h1>
-                        <form onSubmit={handleSearch} class="relative w-full md:w-96">
+                <div className="min-h-screen">
+                    <header className="p-6 bg-gray-900 sticky top-0 z-50 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-800">
+                        <h1 className="text-3xl font-black text-red-600 tracking-tighter italic">CINE<span className="text-white">WAVE</span></h1>
+                        <form onSubmit={handleSearch} className="relative w-full md:w-96">
                             <input 
                                 type="text" 
                                 placeholder="Search movies..." 
-                                class="w-full bg-gray-800 border-2 border-transparent focus:border-red-600 rounded-full py-2 px-6 outline-none transition-all"
+                                className="w-full bg-gray-800 border-2 border-transparent focus:border-red-600 rounded-full py-2 px-6 outline-none transition-all text-white"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <button class="absolute right-4 top-2.5 text-gray-400 hover:text-white">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
                         </form>
                     </header>
 
-                    {/* Movie Grid */}
-                    <main class="p-8">
+                    <main className="p-8">
                         {loading ? (
-                            <div class="flex justify-center items-center h-64 text-2xl font-bold animate-pulse">Loading Movies...</div>
+                            <div className="text-center py-20 text-xl font-bold">Loading...</div>
                         ) : (
-                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                                 {movies.map(movie => (
-                                    <div key={movie.id} class="group relative bg-gray-900 rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 shadow-xl">
-                                        <img 
-                                            src={movie.poster_path ? IMG_PATH + movie.poster_path : "https://via.placeholder.com/500x750?text=No+Image"} 
-                                            class="w-full h-auto"
-                                        />
-                                        <div class="absolute inset-0 bg-black bg-opacity-80 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end">
-                                            <h3 class="font-bold text-lg leading-tight mb-2">{movie.title}</h3>
-                                            <div class="flex items-center gap-2 mb-2 text-yellow-400">
-                                                <i class="fa-solid fa-star"></i>
+                                    <div key={movie.id} className="bg-gray-900 rounded-lg overflow-hidden hover:scale-105 transition-transform">
+                                        <img src={movie.poster_path ? IMG_PATH + movie.poster_path : "https://via.placeholder.com/500x750"} className="w-full h-auto" />
+                                        <div className="p-3">
+                                            <h3 className="font-bold truncate">{movie.title}</h3>
+                                            <p className="text-yellow-400 text-sm italic">⭐ {movie.vote_average}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>                                 <i class="fa-solid fa-star"></i>
                                                 <span>{movie.vote_average}</span>
                                             </div>
                                             <p class="text-xs text-gray-300 line-clamp-3">{movie.overview}</p>
